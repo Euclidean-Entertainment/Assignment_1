@@ -8,7 +8,7 @@ typedef enum
 {
 	hull,
 	bridge,
-	cannon,
+	boat_cannon
 
 } boat_t;
 

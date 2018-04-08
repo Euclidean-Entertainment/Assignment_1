@@ -30,6 +30,7 @@ window_t* r_createWindow(int width, int height, const char* title)
 
     // Now get GLUT to initialse the physical window
     glutInitDisplayMode(GLUT_RGBA | GLUT_DEPTH | GLUT_DOUBLE);
+
     glutInitWindowSize(width, height);
     glutCreateWindow(title);
 

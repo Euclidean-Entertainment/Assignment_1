@@ -36,9 +36,8 @@ void r_drawWaves(wave_t* w)
 
     float stepSize = range/w->segments;
 
-    //glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-    glPolygonMode(GL_BACK, GL_LINE);
-
+    glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+    //glPolygonMode(GL_BACK, GL_LINE);
 
 	GLCall(glBegin(GL_QUAD_STRIP))
 
