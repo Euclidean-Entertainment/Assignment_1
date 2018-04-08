@@ -19,7 +19,7 @@ void v_normalize(vec2_t* vec)
         return;
     }
 
-    mag = sqrtf((vec->i * vec->i) + (vec->j * vec->j));
+    mag = sqrtf((vec->i * vec->i) + (vec->j * vec->j)); //duplicate code here - use v_getMagnitude?
 
     vec->i /= mag;
     vec->j /= mag;
