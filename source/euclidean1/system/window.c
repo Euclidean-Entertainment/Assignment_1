@@ -67,3 +67,5 @@ void r_setDrawFunction(window_t* hwnd, void (*drawCB)(void))
     hwnd->r_draw = drawCB;
     glutDisplayFunc(hwnd->r_draw);
 }
+
+

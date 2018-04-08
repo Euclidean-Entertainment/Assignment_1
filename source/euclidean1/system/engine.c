@@ -4,6 +4,8 @@
 #include "euclidean1/system/engine.h"
 #include "euclidean1/system/window.h"
 #include "euclidean1/object/waves.h"
+#include "euclidean1/object/boat.h"
+#include "euclidean1/object/cannon.h"
 
 #include "platform.h"
 #include "gl_helper.h"
@@ -12,6 +14,7 @@
 
 static engine_t engine;
 static wave_t waves;
+static boat_t boat;
 
 static void draw(void)
 {
@@ -20,6 +23,8 @@ static void draw(void)
 
     //GLCall(glPopMatrix()); // Good example of the GLCall() macro!
     r_drawWaves(&waves);
+
+    r_drawBoat(&boat);
 
     glutSwapBuffers();
 }

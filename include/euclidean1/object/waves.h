@@ -1,5 +1,5 @@
 /**
- *  Engine related structures and functions
+ *  waves related structures and functions
  */
 #ifndef _WAVES_H_INCLUDED
 #define _WAVES_H_INCLUDED

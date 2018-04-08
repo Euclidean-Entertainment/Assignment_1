@@ -5,10 +5,12 @@
 #include "platform.h"
 #include "gl_helper.h"
 #include "euclidean1/object/waves.h"
+#include "euclidean1/math/vec2.h"
 
 #include <stdio.h>
 #include <math.h>
 
+//this should prpbably go into vec2.c b/c we need to calc the y-pos of the boat
 float calculateSinf(float x)
 {
 	float y,A,L,k,w;
@@ -25,7 +27,7 @@ float calculateSinf(float x)
 
 void r_drawWaves(wave_t* w)
 {
-	float x,y;
+	vec2_t wave;
 	float right = 1.0f;
 	float left = -1.0f;
     float range = right - left;
@@ -34,17 +36,40 @@ void r_drawWaves(wave_t* w)
 
     float stepSize = range/w->segments;
 
+    //glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+    glPolygonMode(GL_BACK, GL_LINE);
+
+
 	GLCall(glBegin(GL_QUAD_STRIP))
 
 	GLCall(glColor3f(0.0f, 0.47f, 0.75f))
 	//write a for loop to iterate from 0 to the numer of segments (inclusive)
     for(float i = 0.0f; i <= w->segments; i += stepSize)
     {
-		x = i * stepSize + left;
-		y = calculateSinf(x);
+		wave.x = i * stepSize + left;
+		wave.y = calculateSinf(wave.x);
 
-        GLCall(glVertex3f(x, y - glutGet(GLUT_WINDOW_HEIGHT), -0.8f))
-        GLCall(glVertex3f(x, y, -0.8f))
+        GLCall(glVertex3f(wave.x, wave.y - glutGet(GLUT_WINDOW_HEIGHT), -0.8f))
+        GLCall(glVertex3f(wave.x, wave.y, -0.8f))
     }
 	GLCall(glEnd())
+
+
+ 	/*for(float i = 0.0f; i <= w->segments; i += stepSize)
+    {
+        wave.x = i * stepSize + left;
+        wave.y = calculateSinf(wave.x);
+
+        //wave.i = wave.x;
+        //wave.j = 1.0f;
+
+
+        //v_normalize(&wave);
+        //v_draw(&wave, 0.0f, 1.0f, 0.0f);
+
+       
+
+    }*/
+
+
 }
