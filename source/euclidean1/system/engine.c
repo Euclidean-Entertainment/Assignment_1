@@ -36,15 +36,21 @@ static boat_t 	p1;
 static boat_t 	p2;
 static tower_t	tower;
 
+static bool gameover = false;
+
 /**
  *  Our draw function
  */
 static void draw(void)
 {
     char buffer[256];
+    char buffer2[256];
     
     GLCall(glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT))
     GLCall(glEnable(GL_DEPTH_TEST))
+
+    if(gameover)
+        r_drawString(50, 100, "GAME OVER! Press ESC to exit!");
 
     if(engine.wireframe)
     {
@@ -55,12 +61,17 @@ static void draw(void)
         GLCall(glPolygonMode(GL_FRONT_AND_BACK, GL_FILL))
 	}
 
-    sprintf(buffer, "fps: %.2f", engine.framerate);
+    // Hmmm, it would seem glut is locking the framerate to the refresh rate.
+    // Frametime is 200ms but fps is only 60? I smell something fishy...
+    sprintf(buffer, "fps: %.2f(fps)\0", engine.framerate);
+    sprintf(buffer2, "ft:  %.2f(ms)\0", engine.dt*MILLISECOND_TIME);
+
 
     if(engine.debug)
     {
-        r_drawString(0, 0, buffer);
-        r_drawString(0, 30, "DEBUG");
+        r_drawString(0, 0, "DEBUG MODE");
+        r_drawString(0, 20, buffer);
+        r_drawString(0, 30, buffer2);
         
         drawAABB(&(p1.b_vol));
         drawAABB(&(p2.b_vol));
@@ -72,6 +83,39 @@ static void draw(void)
                 drawAABB(&(p_list.projectiles[i]->b_vol));
         }
     }
+
+    // Draw health for p1
+    if(p1.health > 0)
+    {
+        GLCall(glColor3f(p1.r, p1.g, p1.b))
+        glBegin(GL_QUADS);
+            glVertex2f(-0.9, 0.9);
+            glVertex2f(-0.9 + (p1.health * 0.06), 0.9);
+            glVertex2f(-0.9 + (p1.health * 0.06), 0.85);
+            glVertex2f(-0.9, 0.85);
+        glEnd();
+    }
+
+    if(p2.health > 0)
+    {
+        // Draw health for p2
+        GLCall(glColor3f(p2.r, p2.g, p2.b))
+        glBegin(GL_QUADS);
+            glVertex2f(-0.9, 0.8);
+            glVertex2f(-0.9 + (p2.health * 0.06), 0.8);
+            glVertex2f(-0.9 + (p2.health * 0.06), 0.75);
+            glVertex2f(-0.9, 0.75);
+        glEnd();
+    }
+
+    // Draw health for tower
+    GLCall(glColor3f(1.0f, 1.0f, 0.0f))
+    glBegin(GL_QUADS);
+        glVertex2f(-0.9, 0.7);
+        glVertex2f(-0.9 + (tower.health * 0.03), 0.7);
+        glVertex2f(-0.9 + (tower.health * 0.03), 0.65);
+        glVertex2f(-0.9, 0.65);
+    glEnd();
 
     for(int i = 0; i < MAX_PROJECTILES; i++)
     {
@@ -119,6 +163,7 @@ static void e_update(void)
 
     b_update(&p1, dt);
     b_update(&p2, dt);
+    t_update(&tower, dt);
 
     for(int i = 0; i < MAX_PROJECTILES; i++)
     {
@@ -160,33 +205,44 @@ static void e_update(void)
 
             if(testIntersection(&(p1.b_vol), &(p->b_vol)))
             {
-                printf("p1 collision!\n");
-
                 p_remove(p, i);
+                p1.health--;
             }
 
             if(testIntersection(&(p2.b_vol), &(p->b_vol)))
             {
-                printf("p2 collision!\n");
-
                 p_remove(p, i);
+                p2.health--;
             }
 
             if(testIntersection(&(tower.b_vol), &(p->b_vol)))
             {
-                printf("tower collision!\n");
-
                 p_remove(p, i);
+                tower.health--;
             }
         }
+    }
+
+    if(tower.health <= 0)
+    {
+        gameover = true;
+        engine.running = false;
+    }
+
+    if(p1.health <= 0 && p2.health <= 0)
+    {
+        gameover = true;
+        engine.running = true;
     }
 
     prev_t = t;
     
     dt = t - engine.last_frametime;
+
     if(dt > 0.2)
     {        
         engine.framerate = (engine.frames/dt);
+        engine.dt = dt;
         engine.last_frametime = t;
         engine.frames = 0;
     }
@@ -234,7 +290,8 @@ void e_input(unsigned char c, int x, int y)
         engine.debug = !engine.debug;
         break;
     case 'g':
-        engine.running = !engine.running;
+        if(!gameover)
+            engine.running = !engine.running;
         break;
     case 'n':
         drawNormals = !drawNormals;
@@ -244,41 +301,45 @@ void e_input(unsigned char c, int x, int y)
         break;
     // Left player controls
     case 'a':
-        //p1.x -= 0.01;
-        p1.curr_speed -= BOAT_ACCEL;
+        if(p1.health > 0)
+            p1.curr_speed -= BOAT_ACCEL;
         break;
     case 'd':
-        //p1.x += 0.01;
-        p1.curr_speed += BOAT_ACCEL;
+        if(p1.health > 0)
+            p1.curr_speed += BOAT_ACCEL;
         break;
     case 'q':
-        if(p1.cannon.z_rot < 90.0f)
+        if(p1.cannon.z_rot < 90.0f && p1.health > 0)
             c_rotateCannon(&p1.cannon, 2.0f);
         break;
     case 'Q':
-        if(p1.cannon.z_rot > 0.0f)
+        if(p1.cannon.z_rot > 0.0f && p1.health > 0)
             c_rotateCannon(&p1.cannon, -2.0f);
         break;
     // Right player controls
     case 'k':
-        p2.curr_speed -= BOAT_ACCEL;
+        if(p2.health > 0)
+            p2.curr_speed -= BOAT_ACCEL;
         break;
     case 'l':
-        p2.curr_speed += BOAT_ACCEL;
+        if(p2.health > 0)
+            p2.curr_speed += BOAT_ACCEL;
         break;
     case 'o':
-        if(p2.cannon.z_rot < 90.0f)
+        if(p2.cannon.z_rot < 90.0f && p2.health > 0)
             c_rotateCannon(&p2.cannon, 2.0f);
         break;
     case 'O':
-        if(p2.cannon.z_rot > 0.0f)
+        if(p2.cannon.z_rot > 0.0f && p2.health > 0)
             c_rotateCannon(&p2.cannon, -2.0f);
         break;
     case 'e':
-        b_fire(&p1);
+        if(p1.health > 0)
+            b_fire(&p1);
         break;
     case 'i':
-        b_fire(&p2);
+        if(p2.health > 0)
+            b_fire(&p2);
         break;
 
     case 'f':

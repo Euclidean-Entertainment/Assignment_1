@@ -29,6 +29,7 @@ typedef struct
     float       wait_time;
 
     int         id;
+    int         health;
 
     cannon_t    cannon;
     AABB        b_vol;      /**< This boat's bounding volume */

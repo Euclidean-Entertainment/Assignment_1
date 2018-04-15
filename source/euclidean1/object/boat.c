@@ -78,11 +78,16 @@ void b_init(boat_t* boat, int id, float x, float y, float width, float height, f
     boat->b_vol.y           = y + 0.01f - (height / 2.0f);
     boat->b_vol.width       = width;
     boat->b_vol.height      = height + 0.02;
-    boat->b_vol.scale       = 0.35;    
+    boat->b_vol.scale       = 0.35;
+
+    boat->health            = 10;
 }
 
 void b_drawBoat(boat_t* b)
 {
+    if(b == NULL)
+        return;
+
     GLCall(glPushMatrix())
     GLCall(glTranslatef(b->x, b->y, 0.0f))
 
@@ -132,19 +137,6 @@ void b_update(boat_t* b, float dt)
     b->x += b->curr_speed * dt * 1.5f;
     b->curr_speed *= (DRAG_FORCE * 0.048f);
 
-	/**
-	if(b->curr_speed > 0.0f)
-	{
-		if(b->curr_speed < 0.0005f)
-			b->curr_speed = 0.0f;
-	}
-	else 
-	{
-		if(b->curr_speed > -0.0005f)
-			b->curr_speed = 0.0f;
-	}	
-	**/
-
     b->y            = w_calcSineAtX(b->x);
     b->z_rot        = ANG_2_DEGREES(w_getAngleAtX(b->x));
 
@@ -168,6 +160,6 @@ void b_fire(boat_t* b)
     if(b->wait_time <= 0.0f)
     {
         b->wait_time = 1.0f;
-        c_fireCannon(&b->cannon, b->x, b->y, b->z_rot, 0.1, b->flip);
+        c_fireCannon(&b->cannon, 1.2f, 1.2f, b->z_rot, 0.1, b->flip);
     }
 }

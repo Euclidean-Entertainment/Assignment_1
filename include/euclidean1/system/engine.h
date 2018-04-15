@@ -22,6 +22,7 @@ typedef struct
     // Timing related stuff
     float       time_elapsed;       /**< Elapsed time since our program started (in ms) */
     float       framerate;          /**< Current frame rate */
+    float       dt;
     float       last_frametime;
     float       frame_interval;             
     long        frames;             /**< Frame count */

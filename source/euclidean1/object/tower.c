@@ -28,6 +28,9 @@ void t_init(tower_t* t, float x, float y, float width, float height)
 	t->cannon.length = 0.5f;
 
 	t->cannon.z_rot = 45.0f;
+	t->health = 20;
+
+	t->wait_time = 0.0f;
 	
 
 	printAABB(&t->b_vol);
@@ -48,14 +51,28 @@ void t_draw(tower_t* t, float r, float g, float b)
 		glVertex3f(-0.25f, -1.0f, -0.7f);
 	glEnd();
 
-	GLCall(glTranslatef(0.0f, 0.3f, 0.0f))
+	GLCall(glTranslatef(-0.06f, 0.2f, 0.0f))
 	GLCall(glScalef(0.6f, 0.6f, 0.0f));
 	c_drawCannon(&(t->cannon), 1.0f, 1.0f, 0.0f);
 
 	GLCall(glPopMatrix())
 }
 
+void t_update(tower_t* t, float dt)
+{
+	if(t->wait_time > 0.0f)
+        t->wait_time -= dt;
+
+    if(t->wait_time < 0.0f)
+        t->wait_time = 0.0f;
+}
+
+
 void t_fire(tower_t* t)
 {
-	c_fireCannon(&t->cannon, 0.0f, 0.0f, 0.0f, 1.0f, false);
+	if(t->wait_time <= 0.0f)
+	{
+		t->wait_time = 1.0f;
+		c_fireCannon(&t->cannon, 1.0f, 0.8f, 0.0f, 1.0f, false);
+	}
 }

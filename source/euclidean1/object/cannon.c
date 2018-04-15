@@ -32,7 +32,7 @@ void c_rotateCannon(cannon_t* c, float angle)
     c->z_rot += angle;
 }
 
-void c_fireCannon(cannon_t* c, float xi, float yi, float angle, float scale, bool flip)
+void c_fireCannon(cannon_t* c, float x_force, float y_force, float angle, float scale, bool flip)
 {
     projectile_t* p;
     float x;
@@ -40,16 +40,7 @@ void c_fireCannon(cannon_t* c, float xi, float yi, float angle, float scale, boo
     float vx;
     float vy;
 
-
-/**
-    if(!flip)
-        x = c->x + ((c->length * scale) * cosf(ANG_2_RAD(c->z_rot)) * cosf(ANG_2_RAD(angle) * sinf(ANG_2_RAD(angle))));
-    else
-        x = c->x - ((c->length * scale) * cosf(ANG_2_RAD(c->z_rot)) * cosf(ANG_2_RAD(angle) * sinf(ANG_2_RAD(angle))));
-
-    y = c->y + ((c->length * scale) * sinf(ANG_2_RAD(c->z_rot)) * cosf(ANG_2_RAD(c->z_rot)));
-
-**/
+    // Take into account boat on the other side being flipped
     if(!flip)
         x = c->x + ((c->length * scale) * cosf(ANG_2_RAD(c->z_rot)));
     else
@@ -60,16 +51,25 @@ void c_fireCannon(cannon_t* c, float xi, float yi, float angle, float scale, boo
     x -= x * (cosf(ANG_2_RAD(angle)) - y * sinf(ANG_2_RAD(angle))) * 0.1f;
     y -= x * (sinf(ANG_2_RAD(angle)) + y * cosf(ANG_2_RAD(angle))) * 0.1f;
 
-    vx = 1.2f * cosf(ANG_2_RAD(c->z_rot));
-    vy = 1.2f * sinf(ANG_2_RAD(c->z_rot));
+    vx = x_force * cosf(ANG_2_RAD(c->z_rot));
+    vy = y_force * sinf(ANG_2_RAD(c->z_rot));
 
-    vx += vx * cosf(ANG_2_RAD(angle)) - vy * sinf(ANG_2_RAD(angle));
-    vy += vx * sinf(ANG_2_RAD(angle)) + vy * cosf(ANG_2_RAD(angle)); 
+    if(!flip)
+    {
+        vx += vx * cosf(ANG_2_RAD(angle)) - vy * sinf(ANG_2_RAD(angle));
+        vy += vx * sinf(ANG_2_RAD(angle)) + vy * cosf(ANG_2_RAD(angle));         
+    }
+    else
+    {
+        vx += vx * cosf(ANG_2_RAD(-angle)) - vy * sinf(ANG_2_RAD(-angle));
+        vy += vx * sinf(ANG_2_RAD(-angle)) + vy * cosf(ANG_2_RAD(-angle)); 
+    }
+
 
     if(flip)    
         vx = -vx;
 
     p_init(p, x, y, vx, vy, 0.01f);
-    printf("angle: %f, x: %f, y: %f, vx: %f, vy: %f\n", angle, x, y, vx, vy);
+    //printf("angle: %f, x: %f, y: %f, vx: %f, vy: %f\n", angle, x, y, vx, vy);
     
 }

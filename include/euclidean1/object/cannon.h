@@ -28,6 +28,6 @@ void c_rotateCannon(cannon_t* c, float angle);
 /**
  *  Fire the cannon
  */
-void c_fireCannon(cannon_t* c, float xi, float yi, float angle, float scale, bool flip);
+void c_fireCannon(cannon_t* c, float x_force, float y_force, float angle, float scale, bool flip);
 
 #endif
